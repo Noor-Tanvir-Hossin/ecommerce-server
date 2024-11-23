@@ -170,21 +170,33 @@ const dbConnect = async () => {
                 return res.send({ message: "user not found" })
             }
 
-            // const whishlist = await productCollection.find({ _id: { $in: user.whishList || [] } }).toArray()
-            // res.send(whishlist)
-
-
-            // const product = await productCollection.findById(req.params.id);
-                 
-            // if (!product) {
-            //         return res.send({ message: "product not found" })
-            //     }
-
+            
                 res.json(product);
         });
 
 
+        // update  products  by seller
 
+        app.patch("/updateProduct/:id", async(req, res)=>{
+            const product= req.body
+            console.log(product);
+            const id= req.params.id
+            const filter ={ _id: new ObjectId(id)}
+            const updateProduct= {
+                $set:{
+                    title:product.title,
+                    category: product.category,
+                    brand: product.brand,
+                    price: product.price,
+                    stock: product.stock,
+                    image: product.image,
+                    desciption: product.desciption,
+                    sallerEmail: product.sallerEmail
+                }
+            }
+            const result= await productCollection.updateOne(filter, updateProduct)
+            res.send(result)
+        })
 
 
 
@@ -330,6 +342,20 @@ const dbConnect = async () => {
             const userId = req.params.id; // Get the product ID from the request parameters
 
             const result = await userCollection.deleteOne({ _id: new ObjectId(String(userId)) });
+
+            if (result.deletedCount === 0) {
+                return res.status(404).send({ message: "Product not found" });
+            }
+
+            res.send({ message: "Product deleted successfully" });
+        });
+
+        // delete product by seller
+
+        app.delete("/deleteProduct/:id", async (req, res) => {
+            const userId = req.params.id; // Get the product ID from the request parameters
+
+            const result = await productCollection.deleteOne({ _id: new ObjectId(String(userId)) });
 
             if (result.deletedCount === 0) {
                 return res.status(404).send({ message: "Product not found" });
