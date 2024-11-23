@@ -86,10 +86,14 @@ const dbConnect = async () => {
             res.send(user)
         })
 
+        
+
+        
+
         //get All user
         app.get("/users", async (req, res) => {
             // const query = {email: req.params.email};
-            const user = await userCollection.find().toArray();
+            const user = await userCollection.find({ role: { $ne: "Admin" } }).toArray();
             res.send(user)
         })
 
@@ -197,6 +201,26 @@ const dbConnect = async () => {
             const result= await productCollection.updateOne(filter, updateProduct)
             res.send(result)
         })
+
+
+            // update user by admin
+
+            app.patch("/updateRole/:id", async (req, res) => {
+                const userRole = req.body
+                console.log(userRole);
+                const id= req.params.id
+                const filter ={ _id: new ObjectId(id)}
+                const updateRole= {
+                    $set:{
+                        role:userRole.role,
+                        
+                    }
+                }
+
+                // const query = { email: req.params.email };
+                const user = await userCollection.updateOne(filter, updateRole);
+                res.send(user)
+            })
 
 
 
